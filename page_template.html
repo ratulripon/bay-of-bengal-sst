@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>How Fast Is the Bay of Bengal Warming? | MD Ratul Hasan Ripon</title>
+  <meta name="description" content="An analysis of $n_years years of NOAA satellite sea surface temperature data ($first–$last): the Bay of Bengal warmed at $rate °C per decade.">
+  <meta name="author" content="MD Ratul Hasan Ripon">
+  <meta name="theme-color" content="#123B3A">
+
+  <meta property="og:title" content="How fast is the Bay of Bengal warming?">
+  <meta property="og:description" content="$n_years years of satellite SST data: $rate °C per decade, with the warmest year in $warmest_year.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://ratulripon.github.io/projects/bay-of-bengal-sst/">
+  <meta property="og:image" content="https://ratulripon.github.io/projects/bay-of-bengal-sst/figures/social-preview.png">
+  <link rel="canonical" href="https://ratulripon.github.io/projects/bay-of-bengal-sst/">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #123B3A;
+      --accent: #287C72;
+      --accent-dark: #1D655C;
+      --accent-light: #DDECE4;
+      --background: #F7F8F2;
+      --surface: #FFFFFF;
+      --text: #263A36;
+      --muted: #687B74;
+      --border: #DCE5DF;
+      --earth: #C69B5B;
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "DM Sans", sans-serif;
+      color: var(--text);
+      background: var(--background);
+      line-height: 1.75;
+      font-size: 16px;
+    }
+
+    h1, h2, h3 {
+      font-family: "Manrope", sans-serif;
+      color: var(--primary);
+      line-height: 1.25;
+    }
+
+    h1 { font-size: clamp(2.1rem, 4.6vw, 3.4rem); letter-spacing: -0.045em; margin-bottom: 18px; }
+    h2 { font-size: clamp(1.5rem, 2.6vw, 1.95rem); letter-spacing: -0.03em; margin-bottom: 16px; }
+    h3 { font-size: 1.05rem; margin: 22px 0 8px; }
+    p { margin-bottom: 14px; }
+    a { color: var(--accent-dark); }
+    a:hover { color: var(--primary); }
+    img { max-width: 100%; height: auto; display: block; }
+
+    .wrap { width: min(860px, calc(100% - 32px)); margin: 0 auto; }
+
+    .topbar {
+      border-bottom: 1px solid var(--border);
+      background: rgba(247, 248, 242, 0.94);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(12px);
+    }
+
+    .topbar .wrap {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      min-height: 64px;
+    }
+
+    .brand { font-family: "Manrope", sans-serif; font-weight: 800; color: var(--primary); text-decoration: none; }
+    .brand span { color: var(--accent); }
+    .back { font-size: 0.9rem; font-weight: 600; text-decoration: none; }
+
+    .eyebrow {
+      display: inline-block;
+      color: var(--accent-dark);
+      font-size: 0.77rem;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    header.intro { padding: 64px 0 28px; }
+    .lede { font-size: 1.1rem; color: var(--muted); max-width: 700px; }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 9px;
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-decoration: none;
+    }
+
+    .button:hover { background: var(--accent-dark); color: #fff; }
+    .button.outline { background: transparent; color: var(--primary); border-color: var(--border); }
+    .button.outline:hover { background: var(--accent-light); }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+    .tag {
+      padding: 4px 10px;
+      background: var(--accent-light);
+      color: var(--primary);
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 12px 0 8px;
+    }
+
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    .stat .value {
+      font-family: "Manrope", sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .stat .unit { font-size: 1rem; font-weight: 700; color: var(--accent-dark); }
+    .stat .label { font-weight: 600; margin-top: 6px; }
+    .stat .note { font-size: 0.83rem; color: var(--muted); line-height: 1.5; margin-top: 4px; }
+
+    section { padding: 44px 0; border-top: 1px solid var(--border); }
+    section:first-of-type { border-top: 0; }
+
+    .findings { padding-left: 20px; }
+    .findings li { margin-bottom: 10px; }
+
+    .figure {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin: 24px 0;
+    }
+
+    .figure img { margin: 0 auto; border-radius: 8px; }
+    .narrow .figure img { max-width: 560px; width: 100%; }
+    figcaption { font-size: 0.87rem; color: var(--muted); margin-top: 12px; line-height: 1.6; }
+
+    .table-wrap { overflow-x: auto; margin: 16px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.92rem; background: var(--surface); }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    th { color: var(--muted); font-weight: 600; font-size: 0.82rem; }
+
+    .method-list { padding-left: 20px; }
+    .method-list li { margin-bottom: 8px; }
+
+    .refs { font-size: 0.88rem; color: var(--muted); padding-left: 20px; }
+    .refs li { margin-bottom: 8px; }
+
+    footer {
+      background: var(--primary);
+      color: #D4E4DC;
+      padding: 28px 0;
+      font-size: 0.88rem;
+      margin-top: 30px;
+    }
+
+    footer a { color: #fff; }
+    footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+
+    @media (max-width: 680px) {
+      header.intro { padding-top: 40px; }
+      .stats { grid-template-columns: 1fr; }
+      .figure { padding: 10px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="wrap">
+      <a class="brand" href="/">Ratul<span>.</span></a>
+      <a class="back" href="/#projects">← All projects</a>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <header class="intro">
+      <span class="eyebrow">Mini project · Ocean data analysis</span>
+      <h1>How fast is the Bay of Bengal warming?</h1>
+      <p class="lede">
+        I analysed $n_years years of satellite-based sea surface temperature ($first–$last)
+        to measure how fast the Bay of Bengal is warming, which season warms fastest,
+        and where in the Bay the change is strongest.
+      </p>
+
+      <div class="actions">
+        <a class="button" href="$github" target="_blank" rel="noopener">Code on GitHub ↗</a>
+        <a class="button outline" href="$colab" target="_blank" rel="noopener">Run it in Colab ↗</a>
+        <a class="button outline" href="data/bay_of_bengal_sst_monthly.csv" download>Download data (CSV)</a>
+      </div>
+
+      <div class="tags">
+        <span class="tag">Python</span>
+        <span class="tag">xarray</span>
+        <span class="tag">pandas</span>
+        <span class="tag">SciPy</span>
+        <span class="tag">Matplotlib</span>
+        <span class="tag">NOAA OISST</span>
+        <span class="tag">Trend analysis</span>
+      </div>
+    </header>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="value">$rate <span class="unit">°C</span></div>
+        <div class="label">per decade</div>
+        <div class="note">$rate_ci ($mk_p)</div>
+      </div>
+      <div class="stat">
+        <div class="value">$total <span class="unit">°C</span></div>
+        <div class="label">change since $first</div>
+        <div class="note">Trend rate × length of record</div>
+      </div>
+      <div class="stat">
+        <div class="value">$warmest_year</div>
+        <div class="label">warmest year</div>
+        <div class="note">$warmest_note</div>
+      </div>
+    </div>
+
+    $fig_timeseries
+
+    <section>
+      <h2>Key findings</h2>
+      <ul class="findings">
+        $findings
+      </ul>
+    </section>
+
+    <section>
+      <h2>Where is it warming fastest?</h2>
+      <p>
+        I repeated the trend calculation for every 0.25° grid cell in the study box.
+        The map shows the warming rate in each cell; dots mark cells where the trend is
+        statistically significant.
+      </p>
+      <div class="narrow">$fig_map</div>
+    </section>
+
+    <section>
+      <h2>Which season warms fastest?</h2>
+      <p>
+        The Bay of Bengal's year is shaped by the monsoon, so I split it into four seasons and
+        fitted a separate trend to each one.
+      </p>
+      $fig_season
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Season</th><th>Trend (°C/decade)</th><th>95% CI</th><th>Mann–Kendall</th></tr>
+          </thead>
+          <tbody>
+            $season_rows
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Every month since $first</h2>
+      <p>
+        Each row is a year and each column a month. Blue months were cooler than the
+        $base_start–$base_end normal and red months warmer.
+      </p>
+      <div class="narrow">$fig_heatmap</div>
+      $fig_cycle
+    </section>
+
+    <section>
+      <h2>Data and methods</h2>
+      <div class="narrow">$fig_area</div>
+      <ul class="method-list">
+        <li><strong>Data:</strong> NOAA OI SST V2 High Resolution, monthly means on a 0.25° grid.
+          It blends satellite (AVHRR) observations with ship and buoy measurements. Accessed $access_date.</li>
+        <li><strong>Study area:</strong> $lat_min–$lat_max°N, $lon_min–$lon_max°E. Land cells have no SST value and drop out.</li>
+        <li><strong>Basin average:</strong> each grid cell is weighted by the cosine of its latitude, because cells shrink towards the poles.</li>
+        <li><strong>Anomalies:</strong> departures from the $base_start–$base_end monthly climatology (the current WMO normal).</li>
+        <li><strong>Trend:</strong> Sen's slope (Theil–Sen estimator) on annual means, tested with the Mann–Kendall test.
+          Ordinary least squares gives a similar rate of $ols_rate °C per decade.</li>
+        <li><strong>Seasons:</strong> winter (Dec–Feb, with December counted towards the following year), pre-monsoon (Mar–May),
+          monsoon (Jun–Sep) and post-monsoon (Oct–Nov).</li>
+        <li><strong>Grid-cell trends:</strong> least-squares trend of annual means in each cell, with a t-test on the slope.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Limitations</h2>
+      <ul class="method-list">
+        <li>About four decades of data is enough to detect a trend, but El Niño and the Indian Ocean Dipole
+          can make any one decade look faster or slower than the long-term rate.</li>
+        <li>Annual means reduce, but do not remove, year-to-year persistence, so the p-values are somewhat optimistic.</li>
+        <li>This is surface temperature only. It says nothing about warming at depth, where the Bay's strong
+          salinity stratification matters.</li>
+        <li>OISST is a smoothed, gridded product. Cells near river mouths and the coast are the least reliable.</li>
+      </ul>
+
+      <h3>What I would do next</h3>
+      <ul class="method-list">
+        <li>Count marine heatwaves from the daily version of the dataset, using the Hobday et al. (2016) definition.</li>
+        <li>Regress out the ENSO and IOD indices to see how much of the trend remains.</li>
+        <li>Compare with an independent record such as ERSST v5 or Argo float temperatures.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Data credit and references</h2>
+      <ul class="refs">
+        <li>NOAA OI SST V2 High Resolution Dataset data provided by the NOAA PSL, Boulder, Colorado, USA,
+          from their website at <a href="https://psl.noaa.gov/data/gridded/data.noaa.oisst.v2.highres.html" target="_blank" rel="noopener">psl.noaa.gov</a>.</li>
+        <li>Huang, B., Liu, C., Banzon, V., et al. (2021). Improvements of the Daily Optimum Interpolation
+          Sea Surface Temperature (DOISST) Version 2.1. <em>Journal of Climate</em>, 34, 2923–2939.</li>
+        <li>Sen, P. K. (1968). Estimates of the regression coefficient based on Kendall's tau.
+          <em>Journal of the American Statistical Association</em>, 63, 1379–1389.</li>
+        <li>Kumar, S., Chakraborty, A., Chandrakar, R., et al. (2023). Analysis of marine heatwaves over the
+          Bay of Bengal during 1982–2021. <em>Scientific Reports</em>, 13, 14235.</li>
+        <li>Hobday, A. J., et al. (2016). A hierarchical approach to defining marine heatwaves.
+          <em>Progress in Oceanography</em>, 141, 227–238.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>© MD Ratul Hasan Ripon · Oceanography &amp; environmental research</span>
+      <a href="/">Back to portfolio ↑</a>
+    </div>
+  </footer>
+</body>
+</html>
